@@ -15,11 +15,12 @@ class detectiveNewsSystem:
         #mydata = csv.reader(open(filename, encoding='cp1252'))
         #api_key='edecbe9ce87b4205ad0cabf6ac7be55a'
         #api_key='c86583ceac0f421b8688f6bed011c94c'
+        time =datetime.datetime.now() - datetime.timedelta(minutes=60*3)
 
-        newsapi = NewsApiClient(api_key='edecbe9ce87b4205ad0cabf6ac7be55a')
+        newsapi = NewsApiClient(api_key='ddd584655331475388eb27ed2de64898')
         categories = ['sports','politics','entertainment','technology','health','science','world']
         for x in range (len(categories)):
-            all_articles = newsapi.get_everything(q=categories[x],language='en')
+            all_articles = newsapi.get_everything(q=categories[x],language='en',from_param=time)
 
             print(x)
             articles = dict()
@@ -54,7 +55,8 @@ class detectiveNewsSystem:
                     if(df['urlToImage'][i]!=""): data.append(1)
                     else: data.append(0)
                     data.append(categories[x])
-                    mydata.append(data)
+                    if(len(data)!=0): mydata.append(data)
+                    
                 except : print('error')
                     
       
@@ -88,7 +90,7 @@ class detectiveNewsSystem:
                 correct += 1
         return (correct / float(len(test))) * 100.0
 
-    #getUndetectedNews()
+    getUndetectedNews()
 
     
 
