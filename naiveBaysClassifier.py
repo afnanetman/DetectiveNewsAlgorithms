@@ -197,12 +197,13 @@ class naiveBaysClassifier(detectiveNewsSystem):
         print('================= PASSIVE AGREZZZZZZIVVVEEE =============')
         news=passiveAgressiveClassifier
         passiveAgressiveDetction=news.newsDetection(news,passiveAgressive)
-        for i in range(len(passiveAgressive)):
+        for i in range(len(passiveAgressive)-1):
                  passiveAgressive[i].append(passiveAgressiveDetction[i])
                  detectedData.append(passiveAgressive[i])
                  #detectedData.appentd(passiveAgressive[i])
                  #detectedData.appentd(passiveAgressiveDetction[i])
                  #detectedData.appentd(passiveAgressive[i][6])
+                
                  
         print(detectedData) 
             
