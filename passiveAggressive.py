@@ -38,7 +38,13 @@ class passiveAgressiveClassifier(detectiveNewsSystem):
         tfidf_train=tfidf_vectorizer.fit_transform(x_train.values.astype('U'))
         pac.fit(tfidf_train,y_train.values.astype('U'))
         tfidf_detect=tfidf_vectorizer.transform(news[3].values.astype('U'))
-        return pac.predict(tfidf_detect)
+        detected = pac.predict(tfidf_detect)
+        #print(detected)
+        result=[]
+        for i in range (len(detected)) :
+            if (detected[i]=='0'):result.append('Fake')
+            else:result.append('Real')
+        return result
 
 
 
