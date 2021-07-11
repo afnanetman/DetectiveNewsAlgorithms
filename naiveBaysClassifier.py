@@ -180,6 +180,12 @@ class naiveBaysClassifier(detectiveNewsSystem):
                 print(predictionDecode)
                 print("^^^^^^precentage^^^^^^^^^^",precentage)
                 detection.append(predictionDecode)
+                # detectedArticle.append(undetectedNews[i])
+                #detectedArticle.append(detection[i])
+##                #detectedArticle.append(precentage)
+                #detectedArticle.append(undetectedNews[i][6])
+                undetectedNews[i].append(detection[i])
+                detectedData.append(undetectedNews[i])
                 
     #####***********INSERT TO DB (undetectedNews[7](categoryyyyyyy),undetectedNews[i],predictionDecode[i] , precentage)
 #####################
@@ -187,6 +193,24 @@ class naiveBaysClassifier(detectiveNewsSystem):
           #  news=passiveAggressiveClassifier()
            # news.newsDetection(passiveAgressive)
     #############################3
+        #if (len(passiveAgressive)>0):
+        print('================= PASSIVE AGREZZZZZZIVVVEEE =============')
+        news=passiveAgressiveClassifier
+        passiveAgressiveDetction=news.newsDetection(news,passiveAgressive)
+        for i in range(len(passiveAgressive)):
+                 passiveAgressive[i].append(passiveAgressiveDetction[i])
+                 detectedData.append(passiveAgressive[i])
+                 #detectedData.appentd(passiveAgressive[i])
+                 #detectedData.appentd(passiveAgressiveDetction[i])
+                 #detectedData.appentd(passiveAgressive[i][6])
+                 
+        print(detectedData) 
+            
+            
+    #############################3
+        #####***********INSERT TO DB (undetectedNews[7](categoryyyyyyy),undetectedNews[i],predictionDecode[i] , precentage)
+
+
 
         #return detection
 
