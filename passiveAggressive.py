@@ -28,6 +28,7 @@ class passiveAgressiveClassifier(detectiveNewsSystem):
 
 
     def newsDetection (self,news):
+        news.insert(0 ,[])
         news = pd.DataFrame.from_records(news)
         if(news.size==0):return ([])
         pac=PassiveAggressiveClassifier(max_iter=50)
@@ -54,7 +55,7 @@ Pac = passiveAgressiveClassifier;
 
 #dns = detectiveNewsSystem
 
-df2 = pd.read_excel('D:/Afnan/College/year 4/GP/passive detection.xlsx')
+df2 = pd.read_excel('D:/Afnan/College/year 4/GP/passive detection6.xlsx')
 
 detect = df2.values.tolist()
 
