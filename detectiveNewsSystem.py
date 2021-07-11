@@ -90,7 +90,7 @@ class detectiveNewsSystem:
                 correct += 1
         return (correct / float(len(test))) * 100.0
 
-    getUndetectedNews()
+    #getUndetectedNews()
 
     
 
