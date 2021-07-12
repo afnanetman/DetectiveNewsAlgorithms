@@ -5,7 +5,7 @@ from math import sqrt
 import schedule
 import time
 from detectiveNewsSystem import detectiveNewsSystem
-#import passiveAggressiveClassifier
+from passiveAggressive import passiveAgressiveClassifier 
 
 
 
@@ -150,66 +150,89 @@ class naiveBaysClassifier(detectiveNewsSystem):
         passiveAgressive=[]
         predictions=[]
         detection=[]
+        detectedData=[]
+        po=[]
         
-              
+        #print ('undetectedNews  lengthhhh : ' ,  len(undetectedNews))         
         
         for i in range(len(undetectedNews)):
             prob=dict()
             for key in groupClass:
                p=pC[key]
                for j in range(len(undetectedNews[0])-1):
+##                    print ('undetectedNews  lengthhhh : ' ,  len(undetectedNews))
+##                    print ('len(undetectedNews[0])-1 : ' , len(undetectedNews[0])-1)         
+
+
                     string=str(key)+'-'+str(j)+'-'+str(undetectedNews[i][j])
                     if string in clist.keys(): p*=clist[string]
                prob[key]=p
                
-            
-            if (prob[0]==prob[1]):
+            precentage = ( prob[max(prob,key=prob.get)]/(prob[0]+prob[1]))
+            po.append(precentage)
+            #if (prob[0]==prob[1]):
+            if (precentage<0.6):
                 print(prob)
+                print("^^^^^^precentage^^^^^^^^^^",precentage)
                 print('******************* passive agressive ***************************')
                 passiveAgressive.append(undetectedNews[i])
+                ########################################
+    
+                predictionDecode=self.decode_class(max(prob,key=prob.get))
+                print(predictionDecode)
+                detection.append(predictionDecode)
                 
             else:
                 
-                predictions.append(max(prob,key=prob.get))
-                precentage = ( prob[max(prob,key=prob.get)]/(prob[0]+prob[1]))
+                #predictions.append(max(prob,key=prob.get))
+                #precentage = ( prob[max(prob,key=prob.get)]/(prob[0]+prob[1]))
                 print(prob[0] , prob[1])
                 print("max" , prob[max(prob,key=prob.get)])
                 print("prop",prob)
-                print(undetectedNews[i])
-                predictionDecode=self.decode_class( predictions[i])
+         #       print(undetectedNews[i])
+                predictionDecode=self.decode_class(max(prob,key=prob.get))
                 print(predictionDecode)
                 print("^^^^^^precentage^^^^^^^^^^",precentage)
                 detection.append(predictionDecode)
                 # detectedArticle.append(undetectedNews[i])
                 #detectedArticle.append(detection[i])
-##                #detectedArticle.append(precentage)
+                #detectedArticle.append(precentage)
                 #detectedArticle.append(undetectedNews[i][6])
-                undetectedNews[i].append(detection[i])
+                undetectedNews[i].append(predictionDecode)
+                #undetectedNews[i].append(precentage)
                 detectedData.append(undetectedNews[i])
-                
-    #####***********INSERT TO DB (undetectedNews[7](categoryyyyyyy),undetectedNews[i],predictionDecode[i] , precentage)
-#####################
-    ###    if (len(passiveAgressive)>0):
-          #  news=passiveAggressiveClassifier()
-           # news.newsDetection(passiveAgressive)
-    #############################3
-        #if (len(passiveAgressive)>0):
-        print('================= PASSIVE AGREZZZZZZIVVVEEE =============')
-        news=passiveAgressiveClassifier
-        passiveAgressiveDetction=news.newsDetection(news,passiveAgressive)
-        for i in range(len(passiveAgressive)-1):
+
+        print ('undetectedNews  lengthhhh after loooooooooop : ' ,  len(undetectedNews))         
+
+       # print(' detected Data *************************** :  ' ,detectedData )
+        print ('detectedData  lengthhhh : ' ,  len(detectedData))
+        
+        #print(' passive agressive *************************** :  ' ,passiveAgressive )
+        print ('passiveAgressive  lengthhhh : ' ,  len(passiveAgressive))
+
+
+        if (len(passiveAgressive)>0):
+            print('================= PASSIVE AGREZZZZZZIVVVEEE =============')
+            news=passiveAgressiveClassifier
+
+            passiveAgressiveDetction=news.newsDetection(news,passiveAgressive)
+            print('passiveAgressiveDetction ',passiveAgressiveDetction)
+            for i in range(len(passiveAgressive)):
                  passiveAgressive[i].append(passiveAgressiveDetction[i])
                  detectedData.append(passiveAgressive[i])
                  #detectedData.appentd(passiveAgressive[i])
                  #detectedData.appentd(passiveAgressiveDetction[i])
                  #detectedData.appentd(passiveAgressive[i][6])
                 
-                 
-        print(detectedData) 
+        print('********************* laaaaaaaaaaaaaaaaaaassssssssssttttt *************************** :  ' )       
+        #print(' Neww detected Data *************************** :  ' ,detectedData )
+        print ('detectedData  lengthhhh : ' ,  len(detectedData))         
+        print(detection)
+        print(po)
             
             
     #############################3
-        #####***********INSERT TO DB (undetectedNews[7](categoryyyyyyy),undetectedNews[i],predictionDecode[i] , precentage)
+        #####***********INSERT TO DB (detectedData)
 
 
 
@@ -217,16 +240,18 @@ class naiveBaysClassifier(detectiveNewsSystem):
 
 
 class_instance = naiveBaysClassifier()
+class_instance.newsDetection()
+
 #schedule.every(10).minutes.do(class_instance.newsDetection())
 
 #print(class_instance.newsDetection())
 #print(schedule.every(10).minutes.do(naiveBaysClassifier()).newsDetection())
-schedule.every(1).minutes.do(class_instance.newsDetection)
+#schedule.every(1).minutes.do(class_instance.newsDetection)
 #schedule.every().hour.do(class_instance.newsDetection)
-
+#schedule.every(3*60).minutes.do(class_instance.newsDetection)
 while True:
     schedule.run_pending()
     time.sleep(1)
-    print('*****************************************')
+    #print('*****************************************')
 
 
