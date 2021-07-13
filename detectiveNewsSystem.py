@@ -5,6 +5,12 @@ from newspaper import Article
 import re
 import pandas as pd
 import datetime
+import firebase_admin
+import google.cloud
+from firebase_admin import credentials, firestore
+import insert 
+
+
 
 class detectiveNewsSystem:
     
@@ -15,6 +21,7 @@ class detectiveNewsSystem:
         #mydata = csv.reader(open(filename, encoding='cp1252'))
         #api_key='edecbe9ce87b4205ad0cabf6ac7be55a'
         #api_key='c86583ceac0f421b8688f6bed011c94c'
+        #ddd584655331475388eb27ed2de64898
         time =datetime.datetime.now() - datetime.timedelta(minutes=60*3)
 
         newsapi = NewsApiClient(api_key='ddd584655331475388eb27ed2de64898')
@@ -55,6 +62,7 @@ class detectiveNewsSystem:
                     if(df['urlToImage'][i]!=""): data.append(1)
                     else: data.append(0)
                     data.append(categories[x])
+                    data.append(df['urlToImage'][i])
                     if(len(data)!=0): mydata.append(data)
                     
                 except : print('error')
@@ -68,7 +76,7 @@ class detectiveNewsSystem:
     
     ####def newsDetection fun
 
-    #####insertion Fun
+        
 
     
     
@@ -91,8 +99,22 @@ class detectiveNewsSystem:
         return (correct / float(len(test))) * 100.0
 
     #getUndetectedNews()
+    def FireBaseInsert(mydata):
 
-    
+        for i in range (len(mydata)):
+            data = [{'Author':mydata[i][0],'Date':mydata[i][1],'Title':mydata[i][2],'Content':mydata[i][3],'Source':mydata[i][4],'Category':mydata[i][6],'Image':mydata[i][7],'Label':mydata[i][8]}]
+            headers = ['Author','Date','Title','Content','Source','Category','Label','Image']
+            data_types = ['string','string','string','string','string','string','string','string']
+
+            for batched_data in insert.batch_data(data, 499):
+                batch = insert.store.batch()
+                for data_item in batched_data:
+                    doc_ref = insert.store.collection(insert.collection_name).document()
+                    batch.set(doc_ref, data_item)
+                batch.commit()
+                print('Done')
+                        
+
 
 
 

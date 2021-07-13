@@ -233,8 +233,8 @@ class naiveBaysClassifier(detectiveNewsSystem):
             
     #############################3
         #####***********INSERT TO DB (detectedData)
-
-
+        
+        detectiveNewsSystem.FireBaseInsert(detectedData)
 
         #return detection
 
