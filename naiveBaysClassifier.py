@@ -159,7 +159,7 @@ class naiveBaysClassifier(detectiveNewsSystem):
             prob=dict()
             for key in groupClass:
                p=pC[key]
-               for j in range(len(undetectedNews[0])-1):
+               for j in range(len(undetectedNews[0])-2):
 ##                    print ('undetectedNews  lengthhhh : ' ,  len(undetectedNews))
 ##                    print ('len(undetectedNews[0])-1 : ' , len(undetectedNews[0])-1)         
 
@@ -248,7 +248,7 @@ class_instance.newsDetection()
 #print(schedule.every(10).minutes.do(naiveBaysClassifier()).newsDetection())
 #schedule.every(1).minutes.do(class_instance.newsDetection)
 #schedule.every().hour.do(class_instance.newsDetection)
-#schedule.every(3*60).minutes.do(class_instance.newsDetection)
+schedule.every(3*60).minutes.do(class_instance.newsDetection)
 while True:
     schedule.run_pending()
     time.sleep(1)
