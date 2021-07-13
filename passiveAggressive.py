@@ -42,8 +42,8 @@ class passiveAgressiveClassifier(detectiveNewsSystem):
         #print(detected)
         result=[]
         for i in range (len(detected)) :
-            if (detected[i]=='0'):result.append('Fake')
-            else:result.append('Real')
+            if (detected[i]=='0'):result.append('FAKE')
+            else:result.append('REAL')
         return result
 
 
