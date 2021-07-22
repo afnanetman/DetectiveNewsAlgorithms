@@ -1,1 +1,1 @@
-worker: python naiveBaysClassifier.py
+web: python naiveBaysClassifier.py $PORT
