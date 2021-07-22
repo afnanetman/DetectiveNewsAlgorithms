@@ -1,1 +1,1 @@
-web: python naiveBaysClassifier.py
+worker: python naiveBaysClassifier.py
