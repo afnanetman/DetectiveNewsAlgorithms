@@ -4,6 +4,15 @@ import csv
 from math import sqrt
 import schedule
 import time
+from newsapi import NewsApiClient
+from newspaper import Article
+import re
+import pandas as pd
+import datetime
+import firebase_admin
+import google.cloud
+from firebase_admin import credentials, firestore
+import insert 
 from detectiveNewsSystem import detectiveNewsSystem
 from passiveAggressive import passiveAgressiveClassifier 
 
@@ -57,7 +66,78 @@ class naiveBaysClassifier(detectiveNewsSystem):
           dict[mydata[i][-1]].append(mydata[i]) 
       return dict
 
+    #getting data from news API
+    def getUndetectedNews(self):
+            mydata = []
+            #api_key='edecbe9ce87b4205ad0cabf6ac7be55a'
+            #api_key='c86583ceac0f421b8688f6bed011c94c'
+            #ddd584655331475388eb27ed2de64898
+            time =datetime.datetime.now() - datetime.timedelta(minutes=60*3)
+        
+            newsapi = NewsApiClient(api_key='edecbe9ce87b4205ad0cabf6ac7be55a')
+            categories = ['sports','politics','entertainment','technology','health','science','world']
+            for x in range (len(categories)):
+                all_articles = newsapi.get_everything(q=categories[x],language='en',from_param=time)
 
+                print(x)
+                articles = dict()
+                articles = all_articles['articles']
+                sources = newsapi.get_sources()
+                df = pd.DataFrame(articles)
+            
+                for i in range (len(df.index)):
+                    data =[]
+                    try:
+                        author = str(df['author'][i])
+                        if(author !="None"):
+                            data.append(author)   
+                        else:
+                            data.append("No Author")
+                        
+                    #   data.append(re.split('T',df['publishedAt'][i])[0])
+                        data.append(datetime.datetime.strptime(re.split('T',df['publishedAt'][i])[0],"%Y-%m-%d" ).strftime("%#d/%#m/%Y"))
+            
+                        data.append(df['title'][i])
+        
+                        url = df['url'][i]
+                        article = Article(url) 
+                        article.download()
+                        article.parse()
+                        data.append(article.text)
+
+                        split_string = url.split("/", 3)
+                        substring = split_string[0]+"//"+split_string[1]+split_string[2]
+                        data.append(df['source'][i]['name'])
+
+                        if(df['urlToImage'][i]!=""): data.append(1)
+                        else: data.append(0)
+                        data.append(categories[x])
+                        data.append(df['urlToImage'][i])
+                        if(len(data)!=0): mydata.append(data)
+                    
+                    except : print('error')
+                    
+      
+            print(mydata)
+            print(len(mydata))
+        
+            return mydata
+
+    #insert to firbase
+    def FireBaseInsert(self,mydata):
+
+            for i in range (len(mydata)):
+                data = [{'Author':mydata[i][0],'Date':mydata[i][1],'Title':mydata[i][2],'Content':mydata[i][3],'Source':mydata[i][4],'Category':mydata[i][6],'Image':mydata[i][7],'Label':mydata[i][8]}]
+                headers = ['Author','Date','Title','Content','Source','Category','Label','Image']
+                data_types = ['string','string','string','string','string','string','string','string']
+
+                for batched_data in insert.batch_data(data, 499):
+                    batch = insert.store.batch()
+                    for data_item in batched_data:
+                        doc_ref = insert.store.collection(insert.collection_name).document()
+                        batch.set(doc_ref, data_item)
+                    batch.commit()
+        
 
 
 ###########################code fun############################
@@ -114,14 +194,12 @@ class naiveBaysClassifier(detectiveNewsSystem):
 
     def newsDetection(self):
         #----------------------code----------------------
-        #filename = 'news_articles3WithoutColNames.csv'
-        #filename = 'news_articles3WithoutColNames - Copy.csv'#wa5da test data mn train
         filename = 'news_articles3WithoutColNames_withNewArticles.csv'
         mydata = csv.reader(open(filename, encoding='cp1252'))
         mydata = list(mydata)
         mydata , classes = self.encode_class(mydata)
         undetectedNews={}
-        undetectedNews = detectiveNewsSystem.getUndetectedNews()
+        undetectedNews = self.getUndetectedNews()
 
         classesDic = dict()
 
@@ -152,17 +230,12 @@ class naiveBaysClassifier(detectiveNewsSystem):
         detection=[]
         detectedData=[]
         po=[]
-        
-        #print ('undetectedNews  lengthhhh : ' ,  len(undetectedNews))         
-        
+                
         for i in range(len(undetectedNews)):
             prob=dict()
             for key in groupClass:
                p=pC[key]
                for j in range(len(undetectedNews[0])-2):
-##                    print ('undetectedNews  lengthhhh : ' ,  len(undetectedNews))
-##                    print ('len(undetectedNews[0])-1 : ' , len(undetectedNews[0])-1)         
-
 
                     string=str(key)+'-'+str(j)+'-'+str(undetectedNews[i][j])
                     if string in clist.keys(): p*=clist[string]
@@ -170,44 +243,18 @@ class naiveBaysClassifier(detectiveNewsSystem):
                
             precentage = ( prob[max(prob,key=prob.get)]/(prob[0]+prob[1]))
             po.append(precentage)
-            #if (prob[0]==prob[1]):
-            if (precentage<0.6):
-                print(prob)
-                print("^^^^^^precentage^^^^^^^^^^",precentage)
-                print('******************* passive agressive ***************************')
+            if (prob[0]==prob[1]):
                 passiveAgressive.append(undetectedNews[i])
-                ########################################
-    
                 predictionDecode=self.decode_class(max(prob,key=prob.get))
-                print(predictionDecode)
                 detection.append(predictionDecode)
                 
             else:
-                
-                #predictions.append(max(prob,key=prob.get))
-                #precentage = ( prob[max(prob,key=prob.get)]/(prob[0]+prob[1]))
-                print(prob[0] , prob[1])
-                print("max" , prob[max(prob,key=prob.get)])
-                print("prop",prob)
-         #       print(undetectedNews[i])
                 predictionDecode=self.decode_class(max(prob,key=prob.get))
-                print(predictionDecode)
-                print("^^^^^^precentage^^^^^^^^^^",precentage)
                 detection.append(predictionDecode)
-                # detectedArticle.append(undetectedNews[i])
-                #detectedArticle.append(detection[i])
-                #detectedArticle.append(precentage)
-                #detectedArticle.append(undetectedNews[i][6])
                 undetectedNews[i].append(predictionDecode)
-                #undetectedNews[i].append(precentage)
                 detectedData.append(undetectedNews[i])
 
-        print ('undetectedNews  lengthhhh after loooooooooop : ' ,  len(undetectedNews))         
-
-       # print(' detected Data *************************** :  ' ,detectedData )
         print ('detectedData  lengthhhh : ' ,  len(detectedData))
-        
-        #print(' passive agressive *************************** :  ' ,passiveAgressive )
         print ('passiveAgressive  lengthhhh : ' ,  len(passiveAgressive))
 
 
@@ -220,38 +267,21 @@ class naiveBaysClassifier(detectiveNewsSystem):
             for i in range(len(passiveAgressive)):
                  passiveAgressive[i].append(passiveAgressiveDetction[i])
                  detectedData.append(passiveAgressive[i])
-                 #detectedData.appentd(passiveAgressive[i])
-                 #detectedData.appentd(passiveAgressiveDetction[i])
-                 #detectedData.appentd(passiveAgressive[i][6])
+                
                 
         print('********************* laaaaaaaaaaaaaaaaaaassssssssssttttt *************************** :  ' )       
-        #print(' Neww detected Data *************************** :  ' ,detectedData )
         print ('detectedData  lengthhhh : ' ,  len(detectedData))         
         print(detection)
         print(po)
-            
-            
-    #############################3
-        #####***********INSERT TO DB (detectedData)
-        
-        detectiveNewsSystem.FireBaseInsert(detectedData)
-
-        #return detection
+  
+        self.FireBaseInsert(detectedData)
 
 
 class_instance = naiveBaysClassifier()
 class_instance.newsDetection()
-
-#schedule.every(10).minutes.do(class_instance.newsDetection())
-
-#print(class_instance.newsDetection())
-#print(schedule.every(10).minutes.do(naiveBaysClassifier()).newsDetection())
-#schedule.every(1).minutes.do(class_instance.newsDetection)
-#schedule.every().hour.do(class_instance.newsDetection)
 schedule.every(3*60).minutes.do(class_instance.newsDetection)
 while True:
     schedule.run_pending()
     time.sleep(1)
-    #print('*****************************************')
 
 
