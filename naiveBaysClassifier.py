@@ -174,12 +174,12 @@ class naiveBaysClassifier(detectiveNewsSystem):
                     classLabel=key[0] #b7ot class label bta3 l distinct value ely prob bt3to = 0
                                       #key = '0-0-'BBC News''
                    
-                    row=key[2] #bashoof hwa f anie row
+                    col=key[2] #bashoof hwa f anie col
             
-                    clist[key]=1/(len(groupClass[int(classLabel)])+len(classesDic.get(int(row)))) #b3d ma deft 1 lel attribute ely kan prob = 0 w 7sbtalo prob
+                    clist[key]=1/(len(groupClass[int(classLabel)])+len(classesDic.get(int(col)))) #b3d ma deft 1 lel attribute ely kan prob = 0 w 7sbtalo prob
                     for key in clist:                
-                        if (key[0]==(classLabel)): #ha3ml update lel probs ely mwgden f nfs row 
-                            clist[key]=((clist[key]*len(groupClass[int(classLabel)]))+1)/(len(groupClass[int(classLabel)])+len(classesDic.get(int(row))))
+                        if (key[0]==(classLabel)): #ha3ml update lel probs ely mwgden f nfs col 
+                            clist[key]=((clist[key]*len(groupClass[int(classLabel)]))+1)/(len(groupClass[int(classLabel)])+len(classesDic.get(int(col))))
             for key in clist: #check law feh prob = 0 tany 3shan a3rf a5rog mn while
                 if (clist[key]==0):N=1
             if (N==0):break
