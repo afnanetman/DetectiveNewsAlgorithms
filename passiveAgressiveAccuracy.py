@@ -12,10 +12,10 @@ from detectiveNewsSystem import detectiveNewsSystem
 
 class passiveAgressiveClassifier(detectiveNewsSystem):
     def splitting(mydata, ratio):
-        df.shape
-        df.head()
+        #df.shape
+        #df.head()
         labels=df.Label
-        labels.head()
+        #labels.head()
         return train_test_split(mydata, labels, test_size=ratio, random_state=7) 
 
 
