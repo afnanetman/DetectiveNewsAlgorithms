@@ -100,8 +100,8 @@ class naiveBaysClassifier(detectiveNewsSystem):
                         article.parse()
                         data.append(article.text)
 
-                        split_string = url.split("/", 3)
-                        substring = split_string[0]+"//"+split_string[1]+split_string[2]
+##                        split_string = url.split("/", 3)
+##                        substring = split_string[0]+"//"+split_string[1]+split_string[2]
                         data.append(df['source'][i]['name'])
 
                         if(df['urlToImage'][i]!=""): data.append(1)
@@ -113,7 +113,7 @@ class naiveBaysClassifier(detectiveNewsSystem):
                     except : print('error')
                     
       
-            print(mydata)
+##            print(mydata)
             print(len(mydata))
         
             return mydata
