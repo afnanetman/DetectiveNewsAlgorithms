@@ -30,7 +30,7 @@ class naiveBaysClassifier(detectiveNewsSystem):
     return train, test
 
 
-# Group data rows under each class dict[unacc], dict[acc], dict[vgood] & dict[good]
+# Group data rows under each class dict[real], dict[fake]
  def groupUnderClass(self,mydata): 
       dict = {} 
       for i in range(len(mydata)): 

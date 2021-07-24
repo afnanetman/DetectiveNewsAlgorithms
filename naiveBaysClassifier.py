@@ -38,16 +38,11 @@ class naiveBaysClassifier(detectiveNewsSystem):
     
     # class labels encoded to 0 , 1
     def encode_class(self , mydata): 
-        classes = [] 
-        for i in range(len(mydata)): 
-            if mydata[i][-1] not in classes: 
-                classes.append(mydata[i][-1])
-        labelSize=len(classes)
-        for i in range(len(classes)): 
             for j in range(len(mydata)): 
-                if mydata[j][-1] == classes[i]: 
-                    mydata[j][-1] = i 
-        return mydata ,classes
+                if mydata[j][-1] == 'Real': 
+                    mydata[j][-1] = 0
+                else: mydata[j][-1] = 1
+            return mydata 
     
     # class labels decode to REAL , FAKE
     def decode_class(self , prediction):
@@ -156,19 +151,19 @@ class naiveBaysClassifier(detectiveNewsSystem):
         clist=dict()
         predictions=[]
         while(True):
-            for i in range(len(data[0])-1):
+            for i in range(len(data[0])-1): #3dad col - class label =(6)
                 valueRange = [] 
                 for j in range(len(data)):
                     if data[j][i] not in valueRange: 
-                        valueRange.append(data[j][i])    
+                        valueRange.append(data[j][i])    #ba7ot feh distinct values ely f kol col ex: valueRange=['100percentfedup', 'BBC News'] valueRange=['1']
                 for key in groupClass:
                          for x in range(0,len(valueRange)):
                              ctr=0
                              cString = ''
                              for j in range(0,len(groupClass[key])):
-                                 if(valueRange[x]==groupClass[key][j][i]):
-                                     ctr+=1                 
-                             cString = str(key)+'-'+str(i)+'-'+valueRange[x]
+                                 if(valueRange[x]==groupClass[key][j][i]): 
+                                     ctr+=1                 #count kam mara distinct value d at3mlt m3 real / fake
+                             cString = str(key)+'-'+str(i)+'-'+valueRange[x] #(0/1 - col - distinct value)
                              clist[cString]= ctr/len(groupClass[key])
 
         #_____________________ if probability = 0 ________________________
@@ -176,15 +171,16 @@ class naiveBaysClassifier(detectiveNewsSystem):
             N=0
             for key in clist:
                 if (clist[key]==0):
-                    classLabel=key[0]
+                    classLabel=key[0] #b7ot class label bta3 l distinct value ely prob bt3to = 0
+                                      #key = '0-0-'BBC News''
                    
-                    row=key[2]
+                    row=key[2] #bashoof hwa f anie row
             
-                    clist[key]=1/(len(groupClass[int(classLabel)])+len(classesDic.get(int(row))))
+                    clist[key]=1/(len(groupClass[int(classLabel)])+len(classesDic.get(int(row)))) #b3d ma deft 1 lel attribute ely kan prob = 0 w 7sbtalo prob
                     for key in clist:                
-                        if (key[0]==(classLabel)):
+                        if (key[0]==(classLabel)): #ha3ml update lel probs ely mwgden f nfs row 
                             clist[key]=((clist[key]*len(groupClass[int(classLabel)]))+1)/(len(groupClass[int(classLabel)])+len(classesDic.get(int(row))))
-            for key in clist:
+            for key in clist: #check law feh prob = 0 tany 3shan a3rf a5rog mn while
                 if (clist[key]==0):N=1
             if (N==0):break
         
@@ -197,7 +193,8 @@ class naiveBaysClassifier(detectiveNewsSystem):
         filename = 'news_articles3WithoutColNames_withNewArticles.csv'
         mydata = csv.reader(open(filename, encoding='cp1252'))
         mydata = list(mydata)
-        mydata , classes = self.encode_class(mydata)
+        #mydata , classes = self.encode_class(mydata)
+        mydata = self.encode_class(mydata)
         undetectedNews={}
         undetectedNews = self.getUndetectedNews()
 
@@ -209,9 +206,9 @@ class naiveBaysClassifier(detectiveNewsSystem):
             for j in range(len(mydata)):
                 if mydata[j][i] not in arr:
                     arr.append(mydata[j][i])
-            classesDic[i]= arr
+            classesDic[i]= arr #kol row w news bt3to ex: {0:[news mn 8er label],...5:[news mn 8er labels]}
             
-       # Group data rows under each class dict[fake], dict[real]
+       # Group data rows under each class dict[fake], dict[real] ex: {0: [['Barracuda Brigade','10/26/2016',..],[]],1:[[....]]}
         groupClass=dict() 
         groupClass= self.groupUnderClass(mydata)
           
@@ -220,37 +217,39 @@ class naiveBaysClassifier(detectiveNewsSystem):
 
         clist=dict()
               
-        clist = self.dataProb (mydata, groupClass , classesDic)
-
+        clist = self.dataProb (mydata, groupClass , classesDic) #{'0-0-Barracuda Brigade': 0.09523809523809523, '0-0-https://www.facebook.com/bbcnews': 0.14285714285714285, '0-0-No Author': 0.42857142857142855, '1-0-Barracuda Brigade': 0.3125, '1-0-https://www.facebook.com/bbcnews': 0.5, '1-0-No Author': 0.25,
+                                                                #'0-1-10/26/2016': 0.09523809523809523, '0-1-6/26/2021': 0.09523809523809523, '0-1-6/10/2021': 0.14285714285714285, '0-1-6/21/2021': 0.09523809523809523, '0-1-6/13/2021': 0.09523809523809523, '0-1-6/8/2021': 0.09523809523809523, '0-1-7/6/2021': 0.14285714285714285, '0-1-6/20/2021': 0.09523809523809523, '0-1-7/2/2021': 0.07256235827664399, '0-1-7/8/2021': 0
+                                                                # byaymshy 3la kol col w yeshoof prob bta3 kol attribute f col da ama ykon m3 0 aw 1
+                                                                #(Real-col index - Barracuda Brigade': prob)
 
 
         #*****************************-Detection-******************************
         passiveAgressive=[]
         predictions=[]
-        detection=[]
+        #detection=[]
         detectedData=[]
         po=[]
                 
         for i in range(len(undetectedNews)):
             prob=dict()
-            for key in groupClass:
+            for key in groupClass: 
                p=pC[key]
                for j in range(len(undetectedNews[0])-2):
 
                     string=str(key)+'-'+str(j)+'-'+str(undetectedNews[i][j])
-                    if string in clist.keys(): p*=clist[string]
+                    if string in clist.keys(): p*=clist[string] #check law l value ely gyaly d mawgooda f excel 3ndy 
                prob[key]=p
                
             precentage = ( prob[max(prob,key=prob.get)]/(prob[0]+prob[1]))
             po.append(precentage)
             if (prob[0]==prob[1]):
                 passiveAgressive.append(undetectedNews[i])
-                predictionDecode=self.decode_class(max(prob,key=prob.get))
-                detection.append(predictionDecode)
+                #predictionDecode=self.decode_class(max(prob,key=prob.get))
+                #detection.append(predictionDecode)
                 
             else:
                 predictionDecode=self.decode_class(max(prob,key=prob.get))
-                detection.append(predictionDecode)
+                #detection.append(predictionDecode)
                 undetectedNews[i].append(predictionDecode)
                 detectedData.append(undetectedNews[i])
 
@@ -261,7 +260,6 @@ class naiveBaysClassifier(detectiveNewsSystem):
         if (len(passiveAgressive)>0):
             print('================= PASSIVE AGREZZZZZZIVVVEEE =============')
             news=passiveAgressiveClassifier
-
             passiveAgressiveDetction=news.newsDetection(news,passiveAgressive)
             print('passiveAgressiveDetction ',passiveAgressiveDetction)
             for i in range(len(passiveAgressive)):
@@ -271,10 +269,11 @@ class naiveBaysClassifier(detectiveNewsSystem):
                 
         print('********************* laaaaaaaaaaaaaaaaaaassssssssssttttt *************************** :  ' )       
         print ('detectedData  lengthhhh : ' ,  len(detectedData))         
-        print(detection)
+        #print(detection)
         print(po)
   
         self.FireBaseInsert(detectedData)
+        print('Done')
 
 
 class_instance = naiveBaysClassifier()
