@@ -69,7 +69,7 @@ class naiveBaysClassifier(detectiveNewsSystem):
             #ddd584655331475388eb27ed2de64898
             time =datetime.datetime.now() - datetime.timedelta(minutes=60*3)
         
-            newsapi = NewsApiClient(api_key='edecbe9ce87b4205ad0cabf6ac7be55a')
+            newsapi = NewsApiClient(api_key='c86583ceac0f421b8688f6bed011c94c')
             categories = ['sports','politics','entertainment','technology','health','science','world']
             for x in range (len(categories)):
                 all_articles = newsapi.get_everything(q=categories[x],language='en',from_param=time)
@@ -206,7 +206,7 @@ class naiveBaysClassifier(detectiveNewsSystem):
             for j in range(len(mydata)):
                 if mydata[j][i] not in arr:
                     arr.append(mydata[j][i])
-            classesDic[i]= arr #kol row w news bt3to ex: {0:[news mn 8er label],...5:[news mn 8er labels]}
+            classesDic[i]= arr #col distinct value  ex: {0:['CNN','BBC'],...5:['1']}
             
        # Group data rows under each class dict[fake], dict[real] ex: {0: [['Barracuda Brigade','10/26/2016',..],[]],1:[[....]]}
         groupClass=dict() 
