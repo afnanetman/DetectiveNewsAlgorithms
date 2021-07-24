@@ -8,7 +8,7 @@ app = firebase_admin.initialize_app(cred)
 
 store = firestore.client()
 
-file_path = "Book1.csv"
+##file_path = "Book1.csv"
 collection_name = "news"
 
 def batch_data(iterable, n=1):
